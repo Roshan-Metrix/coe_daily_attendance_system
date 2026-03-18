@@ -20,11 +20,11 @@ export default function ViewAllCoeScreen({ navigation }) {
   const renderItem = ({ item, index }) => (
     <View className="bg-gray-50 p-4 rounded-xl mb-3">
       
-      <Text className="text-primary font-bold text-lg">
+      <Text className="text-primary font-bold text-xl">
         {index + 1}. {item.name}
       </Text>
 
-      <Text className="text-gray-600 mt-1">
+      <Text className="text-gray-600 text-lg">
         Incharge: {item.incharge}
       </Text>
 
@@ -42,7 +42,7 @@ export default function ViewAllCoeScreen({ navigation }) {
         {/* Card Container */}
         <View className="bg-white rounded-2xl p-5 shadow flex-1">
 
-          <Text className="text-xl font-bold text-primary mb-4">
+          <Text className="text-2xl font-bold text-primary mb-4">
             COE List
           </Text>
 

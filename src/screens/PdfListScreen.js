@@ -69,17 +69,17 @@ export default function PdfListScreen({ navigation }) {
             {/* Icon */}
             <MaterialIcons
               name="picture-as-pdf"
-              size={30}
+              size={40}
               color="#DC2626"
             />
 
             {/* File Name */}
             <View className="ml-4 flex-1">
-              <Text className="text-primary font-bold text-base">
+              <Text className="text-primary font-bold text-lg">
                 {item}
               </Text>
 
-              <Text className="text-gray-500 text-sm">
+              <Text className="text-gray-500 text-base">
                 Tap to open
               </Text>
             </View>

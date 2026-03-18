@@ -42,7 +42,6 @@ export default function AttendanceEntryScreen({ route, navigation }) {
 
     await saveAttendance(entry);
 
-    Alert.alert("Saved", "Attendance Added");
     navigation.goBack();
   };
 

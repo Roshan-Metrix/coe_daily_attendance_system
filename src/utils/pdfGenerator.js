@@ -10,26 +10,121 @@ export const generatePDF = async (data, date) => {
       return;
     }
 
-    const rows = data.map((item) => {
+    // Create cards
+    const cards = data.map((item) => {
       return `
-        <div style="margin-bottom:20px; padding:10px; border:1px solid #ccc; border-radius:8px;">
-          <h3>${item.coeName}</h3>
-          <p><strong>Present:</strong> ${item.present}</p>
-          ${
-            item.imageUri
-              ? `<img src="${item.imageUri}" style="width:100%; height:200px; object-fit:cover;" />`
-              : `<p>No Image</p>`
-          }
+        <div class="card">
+          <div class="card-header">
+            ${item.coeName}
+          </div>
+
+          <div class="card-body">
+            <p class="present">Present: ${item.present}</p>
+
+            ${
+              item.imageUri
+                ? `<img src="${item.imageUri}" class="image" />`
+                : `<div class="no-image">No Image</div>`
+            }
+          </div>
         </div>
       `;
     });
 
     const html = `
       <html>
-        <body style="font-family: Arial; padding: 20px;">
-          <h1 style="text-align:center;">COE CIT ATTENDANCE</h1>
-          <h3>Date: ${date}</h3>
-          ${rows.join("")}
+        <head>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              padding: 16px;
+              background: #f5f6fa;
+            }
+
+            .header {
+              text-align: center;
+              margin-bottom: 20px;
+            }
+
+            .title {
+              font-size: 22px;
+              font-weight: bold;
+              color: #0B0C5E;
+            }
+
+            .date {
+              font-size: 14px;
+              color: #555;
+              margin-top: 4px;
+            }
+
+            /* GRID */
+            .grid {
+              display: flex;
+              flex-wrap: wrap;
+              justify-content: space-between;
+            }
+
+            .card {
+              width: 48%;
+              background: #ffffff;
+              border-radius: 10px;
+              margin-bottom: 14px;
+              border: 1px solid #e5e7eb;
+              overflow: hidden;
+            }
+
+            .card-header {
+              background: #0B0C5E;
+              color: white;
+              padding: 10px;
+              font-weight: bold;
+              font-size: 14px;
+            }
+
+            .card-body {
+              padding: 10px;
+            }
+
+            .present {
+              font-size: 13px;
+              margin-bottom: 8px;
+              color: #111;
+            }
+
+            .image {
+              width: 100%;
+              height: 120px;
+              object-fit: cover;
+              border-radius: 6px;
+            }
+
+            .no-image {
+              height: 120px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              background: #f3f4f6;
+              color: #888;
+              border-radius: 6px;
+              font-size: 12px;
+            }
+          </style>
+        </head>
+
+        <body>
+
+          <!-- HEADER -->
+          <div class="header">
+            <div class="title">COE Attendance Report</div>
+            <div class="date">Date: ${date}</div>
+          </div>
+
+          <!-- GRID -->
+          <div class="grid">
+            ${cards.join("")}
+          </div>
+
         </body>
       </html>
     `;
@@ -40,15 +135,12 @@ export const generatePDF = async (data, date) => {
     const fileName = `COE_Attendance_${date}.pdf`;
     const newPath = FileSystem.documentDirectory + fileName;
 
-    // Save file
     await FileSystem.moveAsync({
       from: uri,
       to: newPath,
     });
 
-    console.log("Saved at:", newPath);
-
-    //  AUTO OPEN
+    // AUTO OPEN
     if (Platform.OS === "android") {
       await IntentLauncher.startActivityAsync(
         "android.intent.action.VIEW",
