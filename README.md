@@ -1,4 +1,4 @@
-![CIT Logo](screenshots/chennai-cit-logo.png) CIT, Chennai
+![CIT Logo](screenshots/chennai-cit-logo.png)
 
 # CIT CoE Attendance System
 
