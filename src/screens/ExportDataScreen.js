@@ -6,11 +6,12 @@ import { generatePDF } from "../utils/pdfGenerator";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useState } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
+import { LoadingOverlay } from "../components/LoadingOverlay";
 
 export default function ExportDataScreen({ navigation }) {
   const [showPicker, setShowPicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
-
+  const [loading, setLoading] = useState(false); 
   const formatDate = (date) => {
     return date.toLocaleDateString("en-CA", {
       timeZone: "Asia/Kolkata",
@@ -23,7 +24,7 @@ export default function ExportDataScreen({ navigation }) {
 
     const filtered = allData.filter((item) => item.date === today);
 
-    await generatePDF(filtered, today);
+    await generatePDF(filtered, today, setLoading); 
   };
 
   const handleDateExport = async (date) => {
@@ -32,7 +33,7 @@ export default function ExportDataScreen({ navigation }) {
 
     const filtered = allData.filter((item) => item.date === formatted);
 
-    await generatePDF(filtered, formatted);
+    await generatePDF(filtered, formatted, setLoading);
   };
 
   return (
@@ -81,6 +82,9 @@ export default function ExportDataScreen({ navigation }) {
         </TouchableOpacity>
 
       </View>
+
+      {/* LOADING OVERLAY */}
+      {loading && <LoadingOverlay />}
 
       {/* MODAL CALENDAR */}
       <Modal visible={showPicker} transparent animationType="slide">
