@@ -1,3 +1,5 @@
+![CIT Logo](screenshots/screenshot0.jpeg) CIT, Chennai
+
 # CIT CoE Attendance System
 
 [![Contributors](https://img.shields.io/github/contributors/Roshan-Metrix/coe_daily_attendance_system?color=informational)](https://github.com/Roshan-Metrix/coe_daily_attendance_system/graphs/contributors)
@@ -15,9 +17,10 @@ A comprehensive mobile application for managing daily attendance and lab documen
 ## Screenshots
 
 [Add your screenshots here]
-- Screenshot 1: Attendance screen
-- Screenshot 2: Photo capture screen
-- Screenshot 3: Reports/Dashboard
+
+| | | | |
+|---|---|---|---|
+| ![Home Screen](screenshots/screenshot1.jpeg) | ![Add CoE Screen](screenshots/screenshot4.jpeg) | ![Attendance Screen](screenshots/screenshot3.jpeg) | ![Export Screen](screenshots/screenshot2.jpeg) |
 
 ## Prerequisites
 
