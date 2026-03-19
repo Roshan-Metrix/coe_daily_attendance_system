@@ -29,7 +29,7 @@ All types of contributions are encouraged and valued. See the [Table of Contents
 ## Code of Conduct
 
 This project and everyone participating in it is governed by the
-[Expenses Tracker Code of Conduct](https://github.com/Roshan-Metrix/coe_daily_attendance_system/blob//CODE_OF_CONDUCT.md).
+[COE Attendance - Code of Conduct](https://github.com/Roshan-Metrix/coe_daily_attendance_system/blob//CODE_OF_CONDUCT.md).
 By participating, you are expected to uphold this code. Please report unacceptable behavior
 to <>.
 
