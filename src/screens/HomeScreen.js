@@ -26,7 +26,7 @@ export default function HomeScreen({ navigation }) {
         </Text>
 
         <Text className="text-white text-3xl font-bold mt-1">
-          COE Dashboard
+          COE Attendance
         </Text>
       </View>
 
