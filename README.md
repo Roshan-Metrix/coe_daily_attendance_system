@@ -20,7 +20,7 @@ A comprehensive mobile application for managing daily attendance and lab documen
 
 | | | | | |
 |---|---|---|---|---|
-| ![Home Screen](screenshots/screenshot1.jpeg) | ![Home Screen](screenshots/screenshot1.jpeg) | ![Add CoE Screen](screenshots/screenshot4.jpeg) | ![Attendance Screen](screenshots/screenshot3.jpeg) | ![Export Screen](screenshots/screenshot2.jpeg) |
+| ![Home Screen](screenshots/screenshot0.jpeg) | ![Home Screen](screenshots/screenshot1.jpeg) | ![Add CoE Screen](screenshots/screenshot4.jpeg) | ![Attendance Screen](screenshots/screenshot3.jpeg) | ![Export Screen](screenshots/screenshot2.jpeg) |
 
 ## Prerequisites
 
