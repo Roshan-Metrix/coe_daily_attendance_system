@@ -4,7 +4,7 @@
 
 [![Contributors](https://img.shields.io/github/contributors/Roshan-Metrix/coe_daily_attendance_system?color=informational)](https://github.com/Roshan-Metrix/coe_daily_attendance_system/graphs/contributors)
 
-A comprehensive mobile application for managing daily attendance and lab documentation for the Center of Excellence (CoE) at CIT, Chennai. Built with React Native and Expo, this system streamlines attendance tracking and captures lab working environment photos.
+A comprehensive mobile application for managing daily attendance for the Center of Excellence (CoE) at CIT, Chennai. Built with React Native and Expo, this system streamlines attendance tracking and captures lab working environment photos.
 
 ## Features
 
