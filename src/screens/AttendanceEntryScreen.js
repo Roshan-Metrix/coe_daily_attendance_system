@@ -12,9 +12,19 @@ export default function AttendanceEntryScreen({ route, navigation }) {
   const [present, setPresent] = useState("");
   const [image, setImage] = useState(null);
 
-  const today = new Date().toLocaleDateString("en-CA", {
+  const todayDate = new Date().toLocaleDateString("en-CA", {
     timeZone: "Asia/Kolkata",
   });
+
+
+  const currTime = new Date().toLocaleTimeString("en-CA", {
+  timeZone: "Asia/Kolkata",
+  hour: "numeric",
+  minute: "numeric",
+  second: "numeric",
+  hour12: true
+});
+
 
   const pickImage = async () => {
     const result = await ImagePicker.launchCameraAsync({
@@ -33,7 +43,8 @@ export default function AttendanceEntryScreen({ route, navigation }) {
     }
 
     const entry = {
-      date: today,
+      date: todayDate,
+      time: currTime,
       coeId: coe.id,
       coeName: coe.name,
       present: Number(present),
