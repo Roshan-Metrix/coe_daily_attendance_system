@@ -3,7 +3,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
 
 export default function HomeScreen({ navigation }) {
-
   const Card = ({ title, icon, onPress }) => (
     <TouchableOpacity
       onPress={onPress}
@@ -18,12 +17,9 @@ export default function HomeScreen({ navigation }) {
 
   return (
     <SafeAreaView className="flex-1 bg-background">
-
       {/* Header */}
       <View className="bg-primary px-5 pt-6 pb-8 rounded-b-3xl">
-        <Text className="text-white text-xl font-semibold">
-          Welcome !
-        </Text>
+        <Text className="text-white text-xl font-semibold">Welcome !</Text>
 
         <Text className="text-white text-3xl font-bold mt-1">
           COE Attendance
@@ -32,8 +28,18 @@ export default function HomeScreen({ navigation }) {
 
       {/* Cards Section */}
       <View className="flex-1 px-4 mt-[20px]">
-
         <View className="flex-row flex-wrap justify-between">
+          <Card
+            title="Attendance"
+            icon="fact-check"
+            onPress={() => navigation.navigate("Attendance")}
+          />
+
+          <Card
+            title="Export Data"
+            icon="picture-as-pdf"
+            onPress={() => navigation.navigate("ExportData")}
+          />
 
           <Card
             title="Add COES"
@@ -48,27 +54,12 @@ export default function HomeScreen({ navigation }) {
           />
 
           <Card
-            title="Attendance"
-            icon="fact-check"
-            onPress={() => navigation.navigate("Attendance")}
-          />
-
-          <Card
-            title="Export Data"
-            icon="picture-as-pdf"
-            onPress={() => navigation.navigate("ExportData")}
-          />
-
-          <Card
             title="Saved PDFs"
             icon="save"
             onPress={() => navigation.navigate("PdfList")}
           />
-
         </View>
-
       </View>
-
     </SafeAreaView>
   );
 }
