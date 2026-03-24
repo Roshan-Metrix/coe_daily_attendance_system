@@ -23,7 +23,7 @@ export default function PdfListScreen({ navigation }) {
   const [search, setSearch] = useState("");
   const [sortLatest, setSortLatest] = useState(true);
 
-  // ================= LOAD FILES =================
+  //  LOAD FILES
   const loadFiles = async () => {
     try {
       const { status } = await MediaLibrary.requestPermissionsAsync();
@@ -34,7 +34,7 @@ export default function PdfListScreen({ navigation }) {
 
       let pdfFiles = [];
 
-      // ===== LOAD FROM DOWNLOADS =====
+      //  LOAD FROM DOWNLOADS
       const album =
         (await MediaLibrary.getAlbumAsync("Download")) ||
         (await MediaLibrary.getAlbumAsync("Downloads"));
@@ -48,35 +48,43 @@ export default function PdfListScreen({ navigation }) {
 
         pdfFiles = await Promise.all(
           media.assets
-            .filter((item) =>
-              item.filename?.toLowerCase().endsWith(".pdf")
-            )
+            .filter((item) => item.filename?.toLowerCase().endsWith(".pdf"))
             .map(async (asset) => {
               const info = await MediaLibrary.getAssetInfoAsync(asset.id);
 
               return {
                 id: asset.id,
                 filename: asset.filename,
-                uri: info.localUri || asset.uri, // 🔥 IMPORTANT FIX
+                uri: info.localUri || asset.uri,
                 creationTime: asset.creationTime,
               };
-            })
+            }),
         );
       }
 
-      // ===== LOAD FROM APP STORAGE =====
+      //  LOAD FROM APP STORAGE
       const localFiles = await FileSystem.readDirectoryAsync(
-        FileSystem.documentDirectory
+        FileSystem.documentDirectory,
       );
 
-      const localPdfs = localFiles
-        .filter((f) => f.toLowerCase().endsWith(".pdf"))
-        .map((f) => ({
-          filename: f,
-          uri: FileSystem.documentDirectory + f,
-          id: "local_" + f, // 🔥 IMPORTANT
-          creationTime: Date.now(),
-        }));
+      const localPdfs = await Promise.all(
+        localFiles
+          .filter((f) => f.toLowerCase().endsWith(".pdf"))
+          .map(async (f) => {
+            const uri = FileSystem.documentDirectory + f;
+
+            const info = await FileSystem.getInfoAsync(uri);
+
+            return {
+              filename: f,
+              uri,
+              id: "local_" + f,
+              creationTime: info.modificationTime
+                ? info.modificationTime * 1000
+                : Date.now(),
+            };
+          }),
+      );
 
       // MERGE
       setFiles([...localPdfs, ...pdfFiles]);
@@ -88,22 +96,22 @@ export default function PdfListScreen({ navigation }) {
   useFocusEffect(
     useCallback(() => {
       loadFiles();
-    }, [])
+    }, []),
   );
 
-  // ================= SEARCH =================
+  //  SEARCH
   const filteredFiles = files.filter((file) =>
-    file.filename.toLowerCase().includes(search.toLowerCase())
+    file.filename.toLowerCase().includes(search.toLowerCase()),
   );
 
-  // ================= SORT =================
+  //  SORT
   const sortedFiles = [...filteredFiles].sort((a, b) =>
     sortLatest
       ? b.creationTime - a.creationTime
-      : a.creationTime - b.creationTime
+      : a.creationTime - b.creationTime,
   );
 
-  // ================= OPEN PDF =================
+  // OPEN PDF
   const openFile = async (file) => {
     try {
       let uri = file.uri;
@@ -118,14 +126,11 @@ export default function PdfListScreen({ navigation }) {
       }
 
       if (Platform.OS === "android") {
-        await IntentLauncher.startActivityAsync(
-          "android.intent.action.VIEW",
-          {
-            data: uri,
-            flags: 1,
-            type: "application/pdf",
-          }
-        );
+        await IntentLauncher.startActivityAsync("android.intent.action.VIEW", {
+          data: uri,
+          flags: 1,
+          type: "application/pdf",
+        });
       } else {
         await Print.printAsync({ uri });
       }
@@ -133,12 +138,12 @@ export default function PdfListScreen({ navigation }) {
       console.log("Open PDF error:", err);
       Alert.alert(
         "Error",
-        "Cannot open PDF. Install a PDF viewer (Google Drive / Adobe)."
+        "Cannot open PDF. Install a PDF viewer (Google Drive / Adobe).",
       );
     }
   };
 
-  // ================= SHARE =================
+  //  SHARE
   const handleShare = async (file) => {
     const uri = file.uri;
 
@@ -153,7 +158,7 @@ export default function PdfListScreen({ navigation }) {
     });
   };
 
-  // ================= DELETE =================
+  // DELETE
   const handleDelete = (file) => {
     Alert.alert(
       "Delete PDF",
@@ -186,11 +191,11 @@ export default function PdfListScreen({ navigation }) {
             }
           },
         },
-      ]
+      ],
     );
   };
 
-  // ================= UI =================
+  //  UI
   return (
     <SafeAreaView className="flex-1 bg-background">
       <ScreenHeader title="Saved PDFs" navigation={navigation} />
@@ -221,11 +226,9 @@ export default function PdfListScreen({ navigation }) {
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ padding: 16, flexGrow: 1 }}
         ListEmptyComponent={
-          <View className="flex-1 justify-center items-center mt-5">
+          <View className="flex-1 justify-center items-center mt-3">
             <MaterialIcons name="picture-as-pdf" size={60} color="gray" />
-            <Text className="text-gray-500 mt-4 text-lg">
-              No PDFs found
-            </Text>
+            <Text className="text-gray-500 mt-4 text-lg">No PDFs found</Text>
           </View>
         }
         renderItem={({ item }) => (
@@ -234,17 +237,13 @@ export default function PdfListScreen({ navigation }) {
             className="bg-white p-4 rounded-2xl mb-4 border border-gray-200"
           >
             <View className="flex-row items-center">
-              <MaterialIcons
-                name="picture-as-pdf"
-                size={42}
-                color="#DC2626"
-              />
+              <MaterialIcons name="picture-as-pdf" size={42} color="#DC2626" />
 
               <View className="ml-4 flex-1">
-                <Text className="text-primary font-bold text-lg">
+                <Text className="text-primary font-bold text-lg leading-tight">
                   {item.filename}
                 </Text>
-                <Text className="text-gray-500 text-sm">
+                <Text className="text-gray-500 text-sm leading-tight">
                   {new Date(item.creationTime).toLocaleString()}
                 </Text>
               </View>
