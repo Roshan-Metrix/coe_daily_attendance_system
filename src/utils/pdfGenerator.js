@@ -2,6 +2,7 @@ import * as Print from "expo-print";
 import * as FileSystem from "expo-file-system/legacy";
 import * as MediaLibrary from "expo-media-library";
 import { Platform } from "react-native";
+import { getCITlogo } from "../lib/LOGO";
 
 // Convert image URI to Base64
 const getBase64Image = async (uri) => {
@@ -16,9 +17,20 @@ const getBase64Image = async (uri) => {
   }
 };
 
+// chunk helper
+const chunkArray = (arr, size) => {
+  const result = [];
+  for (let i = 0; i < arr.length; i += size) {
+    result.push(arr.slice(i, i + size));
+  }
+  return result;
+};
+
 export const generatePDF = async (data, date, setLoading) => {
   try {
     setLoading(true);
+
+    const CIT_LOGO = await getCITlogo();
 
     if (!data || data.length === 0) {
       alert("No data found");
@@ -26,19 +38,28 @@ export const generatePDF = async (data, date, setLoading) => {
       return;
     }
 
-    // Create cards for HTML
+    // Create cards
     const cards = await Promise.all(
       data.map(async (item) => {
-        const base64Image = item.imageUri ? await getBase64Image(item.imageUri) : null;
+        const base64Image = item.imageUri
+          ? await getBase64Image(item.imageUri)
+          : null;
+
         return `
           <div class="card">
-            <div class="card-header">${item.coeName}</div>
+            <div class="card-header">
+              <div style="font-weight:800;font-size:17px;">${item.coeName}</div>
+              <div style="font-weight:600;font-size:15px;">Total Present: ${item.present}</div>
+            </div>
+            <div class="date-time">
+              <div>Date : ${item.date}</div>
+              <div>Time : ${item.time}</div>
+            </div>
             <div class="card-body">
-              <p>Total Present: ${item.present}</p>
               ${
                 base64Image
                   ? `<img src="${base64Image}" class="image" />`
-                  : `<div>No Image</div>`
+                  : `<div class="no-image">No Image</div>`
               }
             </div>
           </div>
@@ -46,53 +67,173 @@ export const generatePDF = async (data, date, setLoading) => {
       })
     );
 
-    // Build HTML content
+    // pagination logic
+    const firstPageCards = cards.slice(0, 6);
+    const remainingCards = cards.slice(6);
+    const otherChunks = chunkArray(remainingCards, 8);
+    const totalPages = 1 + otherChunks.length;
+
+    // HTML
     const html = `
-      <html>
-        <head>
-          <style>
-            body { font-family: Arial; padding: 16px; }
-            .grid { display: flex; flex-wrap: wrap; justify-content: space-between; }
-            .card { width: 48%; border: 1px solid #ddd; border-radius: 10px; margin-bottom: 12px; }
-            .card-header { background: #0B0C5E; color: #fff; padding: 8px; font-weight: bold; }
-            .card-body { padding: 8px; }
-            .image { width: 100%; height: 140px; object-fit: cover; border-radius: 6px; }
-            .no-image { height: 120px; display:flex; align-items:center; justify-content:center; background:#f3f4f6; color:#888; border-radius:6px; font-size:12px; }
-          </style>
-        </head>
-        <body>
-          <h2 style="text-align:center;">COE Attendance</h2>
-          <h4 style="text-align:center;">CIT, Chennai</h4>
-          <p style="text-align:center;">Date: ${date} AD</p>
-          <div class="grid">${cards.join("")}</div>
-        </body>
-      </html>
+    <html>
+      <head>
+        <style>
+          body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            padding: 20px;
+            background: #f9fafb;
+            color: #111827;
+            margin: 0;
+          }
+
+          h3 {
+            margin: 2px 0;
+            font-size: 22px;
+            font-weight: 800;
+            text-align:center;
+          }
+
+          p {
+            margin: 6px 0;
+          }
+
+          .grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 12px;
+          }
+
+          .card {
+            width: 48%;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            break-inside: avoid;
+          }
+
+          .card-header {
+            background: linear-gradient(135deg, #0B0C5E, #1d4ed8);
+            color: #ffffff;
+            padding: 10px 12px;
+            display: flex;
+            justify-content: space-between;
+          }
+
+          .date-time {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 12px;
+            font-size: 13px;
+            background: #f3f4f6;
+          }
+
+          .card-body {
+            padding: 10px 12px;
+          }
+
+          .image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+          }
+
+          .no-image {
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f3f4f6;
+            color: #9ca3af;
+          }
+
+          /* page break */
+          .page:not(:last-child) {
+            page-break-after: always;
+          }
+
+          /* footer */
+          .footer {
+          text-align: right;
+          margin-top: 10px;
+          font-size: 12px;
+          color: #555;
+          font-weight: 800;
+          }
+
+          /* margin for other pages */
+          .other-page {
+            margin-top: 10px;
+          }
+        </style>
+      </head>
+
+      <body>
+
+        <!-- FIRST PAGE -->
+        <div class="page">
+          <div>
+            <img src="${CIT_LOGO}" style="width:450px; margin:-10px 0 0 -10px;" />
+          </div>
+
+          <h3>COE Attendance</h3>
+
+          <p>Date: ${date}</p>
+
+          <p style="font-size:15px;">
+            <u>Note:</u> This is not the actual attendance count. It represents the number of students present during the visit by the Office of CoE.
+          </p>
+
+          <div class="grid">
+            ${firstPageCards.join("")}
+          </div>
+
+          <div class="footer">Page 1 of ${totalPages}</div>
+        </div>
+
+        <!-- OTHER PAGES -->
+        ${otherChunks
+          .map(
+            (chunk, index) => `
+            <div class="page other-page">
+              <div class="grid">
+                ${chunk.join("")}
+              </div>
+              <div class="footer">Page ${index + 2} of ${totalPages}</div>
+            </div>
+          `
+          )
+          .join("")}
+
+      </body>
+    </html>
     `;
 
-    // Preview PDF
+    // Preview
     await Print.printAsync({ html });
 
-    // Generate PDF file
+    // Generate file
     const { uri } = await Print.printToFileAsync({ html });
 
-    // Rename PDF to COE_date.pdf
     const fileName = `COE_${date}.pdf`;
     const newPath = FileSystem.documentDirectory + fileName;
 
     await FileSystem.moveAsync({ from: uri, to: newPath });
 
-    // Save to Downloads on Android
+    // Save to Downloads (Android)
     if (Platform.OS === "android") {
       const { status } = await MediaLibrary.requestPermissionsAsync();
       if (status !== "granted") {
-        alert("Permission required to save PDF");
+        alert("Permission required");
         setLoading(false);
         return;
       }
 
       const asset = await MediaLibrary.createAssetAsync(newPath);
 
-      // Try both possible album names
       let album =
         (await MediaLibrary.getAlbumAsync("Download")) ||
         (await MediaLibrary.getAlbumAsync("Downloads"));
