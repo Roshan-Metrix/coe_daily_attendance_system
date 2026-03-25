@@ -206,6 +206,7 @@ export default function PdfListScreen({ navigation }) {
           placeholder="Search PDFs..."
           value={search}
           onChangeText={setSearch}
+          placeholderTextColor="#94a3b8"
           className="bg-white p-4 rounded-xl border border-gray-200 mb-3"
         />
 
