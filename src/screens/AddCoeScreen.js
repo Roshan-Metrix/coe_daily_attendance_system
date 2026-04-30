@@ -36,7 +36,7 @@ export default function AddCoeScreen({ navigation }) {
 
       <View className="px-4 mt-2">
 
-        {/* Form Card */}
+        {/* Form Cards */}
         <View className="bg-white rounded-2xl p-5 shadow">
 
           {/* Title */}
