@@ -50,7 +50,7 @@ const getTodayEntry = (coeId) => {
   return (
     <TouchableOpacity
       className={`p-4 rounded-xl mb-3 ${
-        isMarked ? "bg-green-100 border border-green-300" : "bg-gray-50"
+        isMarked ? "bg-green-100 border border-green-300" : "bg-gray-100"
       }`}
       onPress={() =>
         !isMarked && navigation.navigate("AttendanceEntry", { coe: item })
