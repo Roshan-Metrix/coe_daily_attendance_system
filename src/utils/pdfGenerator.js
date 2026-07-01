@@ -249,6 +249,6 @@ export const generatePDF = async (data, date, setLoading) => {
   } catch (error) {
     console.log("PDF generation error:", error);
     setLoading(false);
-    alert("PDF generation failed");
+    // alert("PDF generation failed");
   }
 };
