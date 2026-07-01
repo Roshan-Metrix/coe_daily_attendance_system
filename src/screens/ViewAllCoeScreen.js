@@ -18,7 +18,7 @@ export default function ViewAllCoeScreen({ navigation }) {
   }, [navigation]);
 
   const renderItem = ({ item, index }) => (
-    <View className="bg-gray-50 p-4 rounded-xl mb-3">
+    <View className="bg-gray-100 p-4 rounded-xl mb-3">
       
       <Text className="text-primary font-bold text-xl">
         {index + 1}. {item.name}
