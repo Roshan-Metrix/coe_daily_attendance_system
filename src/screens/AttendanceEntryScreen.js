@@ -74,6 +74,7 @@ export default function AttendanceEntryScreen({ route, navigation }) {
             keyboardType="numeric"
             value={present}
             onChangeText={setPresent}
+            placeholderTextColor="#94a3b8"
             className="bg-gray-100 p-4 rounded-xl text-base"
           />
         </View>
