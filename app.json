@@ -29,7 +29,14 @@
     "plugins": [
       "expo-sharing",
       "@react-native-community/datetimepicker",
-      "expo-font"
+      "expo-font",
+       [
+        "expo-image-picker",
+        {
+          "cameraPermission": "Allow this app to access your camera.",
+          "photosPermission": "Allow this app to access your photos."
+        }
+      ]
     ],
     "extra": {
       "eas": {
