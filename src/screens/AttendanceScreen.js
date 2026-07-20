@@ -25,11 +25,7 @@ export default function AttendanceScreen({ navigation }) {
     // console.log("Attendance Data:", attData);
   };
 
-  const isMarked = (coeName) => {
-    return attendance.some(
-      (item) => item.coe === coeName && item.date === today,
-    );
-  };
+
 
   useFocusEffect(
     useCallback(() => {
@@ -37,54 +33,53 @@ export default function AttendanceScreen({ navigation }) {
     }, []),
   );
 
-const getTodayEntry = (coeId) => {
-  return attendance.find(
-    (item) => item.coeId === coeId && item.date === today
-  );
-};
+  const getTodayEntry = (coeId) => {
+    return attendance.find(
+      (item) => item.coeId === coeId && item.date === today
+    );
+  };
 
- const renderItem = ({ item }) => {
-  const entry = getTodayEntry(item.id);
-  const isMarked = !!entry;
+  const renderItem = ({ item }) => {
+    const entry = getTodayEntry(item.id);
+    const isMarked = !!entry;
 
-  return (
-    <TouchableOpacity
-      className={`p-4 rounded-xl mb-3 ${
-        isMarked ? "bg-green-100 border border-green-300" : "bg-gray-100"
-      }`}
-      onPress={() =>
-        !isMarked && navigation.navigate("AttendanceEntry", { coe: item })
-      }
-      disabled={isMarked}
-    >
-      <View className="flex-row justify-between items-center">
-        <Text className="text-primary font-bold text-lg">
-          {item.name}
-        </Text>
-
-        {isMarked && (
-          <MaterialIcons name="check-circle" size={22} color="green" />
-        )}
-      </View>
-
-      {isMarked ? (
-        <View className="mt-2">
-          <Text className="text-green-600 font-semibold text-sm">
-            Added for today
+    return (
+      <TouchableOpacity
+        className={`p-4 rounded-xl mb-3 ${isMarked ? "bg-green-100 border border-green-300" : "bg-gray-100"
+          }`}
+        onPress={() =>
+          !isMarked && navigation.navigate("AttendanceEntry", { coe: item })
+        }
+        disabled={isMarked}
+      >
+        <View className="flex-row justify-between items-center">
+          <Text className="text-primary font-bold text-lg">
+            {item.name}
           </Text>
 
-          <Text className="text-green-800 text-sm mt-1">
-            Present: {entry.present}
-          </Text>
+          {isMarked && (
+            <MaterialIcons name="check-circle" size={22} color="green" />
+          )}
         </View>
-      ) : (
-        <Text className="text-gray-500 text-sm mt-1">
-          Tap to mark attendance
-        </Text>
-      )}
-    </TouchableOpacity>
-  );
-};
+
+        {isMarked ? (
+          <View className="mt-2">
+            <Text className="text-green-600 font-semibold text-sm">
+              Added for today
+            </Text>
+
+            <Text className="text-green-800 text-sm mt-1">
+              Present: {entry.present}
+            </Text>
+          </View>
+        ) : (
+          <Text className="text-gray-500 text-sm mt-1">
+            Tap to mark attendance
+          </Text>
+        )}
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-background">

@@ -2,6 +2,7 @@ import { View, Text, TextInput, TouchableOpacity, Image, Alert } from "react-nat
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState } from "react";
 import * as ImagePicker from "expo-image-picker";
+import * as FileSystem from "expo-file-system/legacy";
 import ScreenHeader from "../components/ScreenHeader";
 import { saveAttendance } from "../utils/storage";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -18,12 +19,12 @@ export default function AttendanceEntryScreen({ route, navigation }) {
 
 
   const currTime = new Date().toLocaleTimeString("en-CA", {
-  timeZone: "Asia/Kolkata",
-  hour: "numeric",
-  minute: "numeric",
-  second: "numeric",
-  hour12: true
-});
+    timeZone: "Asia/Kolkata",
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric",
+    hour12: true
+  });
 
 
   const pickImage = async () => {
@@ -42,13 +43,28 @@ export default function AttendanceEntryScreen({ route, navigation }) {
       return;
     }
 
+    let savedImageUri = image;
+
+    try {
+      // Move image from temporary cache to permanent document directory
+      const fileName = `attendance_${Date.now()}.jpg`;
+      const newPath = FileSystem.documentDirectory + fileName;
+      await FileSystem.copyAsync({
+        from: image,
+        to: newPath
+      });
+      savedImageUri = newPath;
+    } catch (err) {
+      console.log("Error saving image persistently:", err);
+    }
+
     const entry = {
       date: todayDate,
       time: currTime,
       coeId: coe.id,
       coeName: coe.name,
       present: Number(present),
-      imageUri: image,
+      imageUri: savedImageUri,
     };
 
     await saveAttendance(entry);
