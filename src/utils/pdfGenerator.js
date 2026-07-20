@@ -1,7 +1,8 @@
 import * as Print from "expo-print";
 import * as FileSystem from "expo-file-system/legacy";
-import * as MediaLibrary from "expo-media-library";
-import { Platform } from "react-native";
+import * as Sharing from "expo-sharing";
+import * as IntentLauncher from "expo-intent-launcher";
+import { Platform, Alert } from "react-native";
 import { getCITlogo } from "../lib/LOGO";
 
 // Convert image URI to Base64
@@ -56,11 +57,10 @@ export const generatePDF = async (data, date, setLoading) => {
               <div>Time : ${item.time}</div>
             </div>
             <div class="card-body">
-              ${
-                base64Image
-                  ? `<img src="${base64Image}" class="image" />`
-                  : `<div class="no-image">No Image</div>`
-              }
+              ${base64Image
+            ? `<img src="${base64Image}" class="image" />`
+            : `<div class="no-image">No Image</div>`
+          }
             </div>
           </div>
         `;
@@ -196,8 +196,8 @@ export const generatePDF = async (data, date, setLoading) => {
 
         <!-- OTHER PAGES -->
         ${otherChunks
-          .map(
-            (chunk, index) => `
+        .map(
+          (chunk, index) => `
             <div class="page other-page">
               <div class="grid">
                 ${chunk.join("")}
@@ -205,50 +205,64 @@ export const generatePDF = async (data, date, setLoading) => {
               <div class="footer">Page ${index + 2} of ${totalPages}</div>
             </div>
           `
-          )
-          .join("")}
+        )
+        .join("")}
 
       </body>
     </html>
     `;
 
-    // Preview
-    await Print.printAsync({ html });
+    // Preview (optional, if you want it printed)
+    // await Print.printAsync({ html });
 
     // Generate file
     const { uri } = await Print.printToFileAsync({ html });
 
-    const fileName = `COE_${date}.pdf`;
+    const fileName = `COE_${date.replace(/\//g, "-")}.pdf`;
     const newPath = FileSystem.documentDirectory + fileName;
 
-    await FileSystem.moveAsync({ from: uri, to: newPath });
-
-    // Save to Downloads (Android)
-    if (Platform.OS === "android") {
-      const { status } = await MediaLibrary.requestPermissionsAsync();
-      if (status !== "granted") {
-        alert("Permission required");
-        setLoading(false);
-        return;
-      }
-
-      const asset = await MediaLibrary.createAssetAsync(newPath);
-
-      let album =
-        (await MediaLibrary.getAlbumAsync("Download")) ||
-        (await MediaLibrary.getAlbumAsync("Downloads"));
-
-      if (!album) {
-        await MediaLibrary.createAlbumAsync("Download", asset, false);
-      } else {
-        await MediaLibrary.addAssetsToAlbumAsync([asset], album, false);
-      }
+    // Check if exists and remove
+    const fileInfo = await FileSystem.getInfoAsync(newPath);
+    if (fileInfo.exists) {
+      await FileSystem.deleteAsync(newPath, { idempotent: true });
     }
 
+    await FileSystem.copyAsync({ from: uri, to: newPath });
+
     setLoading(false);
+
+    if (Platform.OS === "android") {
+      try {
+        const contentUri = await FileSystem.getContentUriAsync(newPath);
+        await IntentLauncher.startActivityAsync("android.intent.action.VIEW", {
+          data: contentUri,
+          flags: 1, // FLAG_GRANT_READ_URI_PERMISSION
+          type: "application/pdf",
+        });
+      } catch (err) {
+        console.log("Intent launcher failed:", err);
+        if (await Sharing.isAvailableAsync()) {
+          await Sharing.shareAsync(newPath, { mimeType: 'application/pdf', dialogTitle: 'Share PDF' });
+        }
+      }
+    } else {
+      // iOS
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(newPath, {
+          mimeType: 'application/pdf',
+          UTI: 'com.adobe.pdf',
+          dialogTitle: 'Save or Share PDF'
+        });
+      } else {
+        Alert.alert("Success", "PDF generated successfully!");
+      }
+    }
   } catch (error) {
     console.log("PDF generation error:", error);
     setLoading(false);
-    // alert("PDF generation failed");
+    Alert.alert(
+      "PDF Error",
+      JSON.stringify(error, null, 2)
+    );
   }
 };
