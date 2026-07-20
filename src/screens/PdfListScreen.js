@@ -15,8 +15,8 @@ import ScreenHeader from "../components/ScreenHeader";
 import { useState, useCallback } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import { MaterialIcons } from "@expo/vector-icons";
-import * as IntentLauncher from "expo-intent-launcher";
-import * as Print from "expo-print";
+// import * as IntentLauncher from "expo-intent-launcher";
+// import * as Print from "expo-print";
 
 export default function PdfListScreen({ navigation }) {
   const [files, setFiles] = useState([]);
@@ -26,40 +26,41 @@ export default function PdfListScreen({ navigation }) {
   //  LOAD FILES
   const loadFiles = async () => {
     try {
-      const { status } = await MediaLibrary.requestPermissionsAsync();
-      if (status !== "granted") {
-        alert("Permission required");
-        return;
-      }
-
       let pdfFiles = [];
 
-      //  LOAD FROM DOWNLOADS
-      const album =
-        (await MediaLibrary.getAlbumAsync("Download")) ||
-        (await MediaLibrary.getAlbumAsync("Downloads"));
+      try {
+        const { status } = await MediaLibrary.requestPermissionsAsync();
+        if (status === "granted") {
+          //  LOAD FROM DOWNLOADS
+          const album =
+            (await MediaLibrary.getAlbumAsync("Download")) ||
+            (await MediaLibrary.getAlbumAsync("Downloads"));
 
-      if (album) {
-        const media = await MediaLibrary.getAssetsAsync({
-          album,
-          mediaType: "unknown",
-          first: 500,
-        });
+          if (album) {
+            const media = await MediaLibrary.getAssetsAsync({
+              album,
+              mediaType: "unknown",
+              first: 500,
+            });
 
-        pdfFiles = await Promise.all(
-          media.assets
-            .filter((item) => item.filename?.toLowerCase().endsWith(".pdf"))
-            .map(async (asset) => {
-              const info = await MediaLibrary.getAssetInfoAsync(asset.id);
+            pdfFiles = await Promise.all(
+              media.assets
+                .filter((item) => item.filename?.toLowerCase().endsWith(".pdf"))
+                .map(async (asset) => {
+                  const info = await MediaLibrary.getAssetInfoAsync(asset.id);
 
-              return {
-                id: asset.id,
-                filename: asset.filename,
-                uri: info.localUri || asset.uri,
-                creationTime: asset.creationTime,
-              };
-            }),
-        );
+                  return {
+                    id: asset.id,
+                    filename: asset.filename,
+                    uri: info.localUri || asset.uri,
+                    creationTime: asset.creationTime,
+                  };
+                }),
+            );
+          }
+        }
+      } catch (mediaErr) {
+        console.log("MediaLibrary load error:", mediaErr);
       }
 
       //  LOAD FROM APP STORAGE
@@ -111,35 +112,21 @@ export default function PdfListScreen({ navigation }) {
       : a.creationTime - b.creationTime,
   );
 
-  // OPEN PDF
   const openFile = async (file) => {
+    console.log("URI:", file.uri);
     try {
-      let uri = file.uri;
-
-      if (!uri) {
-        uri = FileSystem.documentDirectory + file.filename;
+      if (!(await Sharing.isAvailableAsync())) {
+        Alert.alert("Error", "Sharing is not available on this device.");
+        return;
       }
 
-      // Ensure file:// format
-      if (!uri.startsWith("file://")) {
-        uri = "file://" + uri.replace("file://", "");
-      }
-
-      if (Platform.OS === "android") {
-        await IntentLauncher.startActivityAsync("android.intent.action.VIEW", {
-          data: uri,
-          flags: 1,
-          type: "application/pdf",
-        });
-      } else {
-        await Print.printAsync({ uri });
-      }
+      await Sharing.shareAsync(file.uri, {
+        mimeType: "application/pdf",
+        dialogTitle: "Open PDF",
+      });
     } catch (err) {
       console.log("Open PDF error:", err);
-      Alert.alert(
-        "Error",
-        "Cannot open PDF. Install a PDF viewer (Google Drive / Adobe).",
-      );
+      Alert.alert("Error", "Unable to open PDF.");
     }
   };
 
